@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tollygunge Deepak Sangha - Chanda Collection Portal</title>
+  <style>
+    :root {
+      --primary: #065f46;
+      --primary-dark: #064e3b;
+      --accent: #b91c1c;
+      --gold: #f59e0b;
+      --gold-light: #fef3c7;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Bengali", sans-serif; }
+    body { background-color: var(--bg); color: var(--text-main); padding-bottom: 60px; }
+
+    header {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 70%, #047857 100%);
+      color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 4px 12px rgba(6, 78, 59, 0.2); flex-wrap: wrap; gap: 14px; border-bottom: 3px solid var(--gold);
+    }
+    .club-branding { display: flex; align-items: center; gap: 14px; }
+    .club-logo {
+      width: 54px; height: 54px; border-radius: 50%; background: #ffffff; padding: 2px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center;
+    }
+    .club-logo svg { width: 100%; height: 100%; }
+    .brand-titles h1 { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .brand-titles .bengali-sub { font-size: 0.95rem; font-weight: 700; color: var(--gold-light); }
+    .brand-titles .estd-badge {
+      font-size: 0.7rem; background: rgba(245, 158, 11, 0.25); border: 1px solid var(--gold); color: #fef08a; padding: 1px 7px; border-radius: 12px; font-weight: 600;
+    }
+
+    .header-btns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .container { max-width: 1240px; margin: 24px auto; padding: 0 16px; }
+
+    .festival-badge-strip {
+      background: linear-gradient(90deg, #fff1f2 0%, #fef3c7 50%, #ecfdf5 100%);
+      border: 1px solid #fed7aa; border-left: 4px solid var(--accent);
+      padding: 10px 16px; border-radius: 8px; margin-bottom: 20px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+    }
+    .festival-title { font-size: 0.9rem; font-weight: 700; color: var(--accent); }
+    .sub-tag { font-size: 0.8rem; color: #78350f; font-weight: 600; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 22px; }
+    .stat-card {
+      background: var(--card-bg); padding: 16px 18px; border-radius: 10px; border: 1px solid var(--border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04); position: relative; overflow: hidden;
+    }
+    .stat-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--primary); }
+    .stat-card.card-pending::before { background: var(--accent); }
+    .stat-card.card-target::before { background: var(--gold); }
+    .stat-card.card-count::before { background: #3b82f6; }
+    .stat-card .label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+    .stat-card .value { font-size: 1.65rem; font-weight: 800; margin-top: 4px; }
+    .val-target { color: #1e293b; }
+    .val-paid { color: var(--primary); }
+    .val-pending { color: var(--accent); }
+    .val-count { color: #1d4ed8; }
+
+    .toolbar {
+      background: var(--card-bg); padding: 14px; border-radius: 10px; border: 1px solid var(--border);
+      display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; margin-bottom: 20px;
+    }
+    .search-box { display: flex; gap: 8px; flex: 1; min-width: 280px; }
+    input[type="text"], input[type="number"], input[type="tel"], select {
+      width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; outline: none;
+    }
+    input:focus, select:focus { border-color: var(--primary); }
+
+    .btn { padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; text-decoration: none; }
+    .btn-club { background: var(--primary); color: white; }
+    .btn-club:hover { background: var(--primary-dark); }
+    .btn-gold { background: var(--gold); color: #451a03; }
+    .btn-gold:hover { background: #d97706; }
+    .btn-rollover { background: #7c2d12; color: #fef08a; border: 1px solid #b45309; }
+    .btn-rollover:hover { background: #9a3412; }
+    .btn-outline { background: white; border: 1px solid #cbd5e1; color: #334155; }
+    .btn-outline:hover { background: #f8fafc; }
+    .btn-sm { padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; }
+    .btn-danger { background: #fee2e2; color: #991b1b; }
+    .btn-restore { background: #dcfce7; color: #166534; }
+    .btn-wa { background: #25d366; color: white; }
+
+    .table-container { background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border); overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.86rem; }
+    th { background: #f8fafc; padding: 12px 10px; border-bottom: 2px solid var(--border); font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
+    td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    tr:hover { background: #fcfdfd; }
+
+    .badge { padding: 3px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; display: inline-block; }
+    .badge-paid { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .badge-partial { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+    .badge-pending { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+    .bill-tag { font-family: monospace; font-size: 0.72rem; color: #64748b; display: block; margin-top: 2px; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); display: none; align-items: center; justify-content: center; z-index: 999; padding: 16px; }
+    .modal-overlay.active { display: flex; }
+    .modal-card { background: white; width: 100%; max-width: 520px; border-radius: 10px; overflow: hidden; box-shadow: 0 14px 35px rgba(0,0,0,0.3); border-top: 4px solid var(--primary); }
+    .modal-header { padding: 14px 18px; background: #f8fafc; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h3 { font-size: 1rem; font-weight: 800; color: var(--primary-dark); }
+    .modal-close { font-size: 1.4rem; border: none; background: transparent; cursor: pointer; color: #94a3b8; }
+    .modal-body { padding: 18px; max-height: 80vh; overflow-y: auto; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 0.72rem; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+
+    #statusBanner { display: none; padding: 10px 16px; margin-bottom: 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; }
+    .banner-info { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .banner-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .banner-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="club-branding">
+      <div class="club-logo">
+        <svg viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="47" stroke="#065f46" stroke-width="2" />
+          <ellipse cx="50" cy="62" rx="14" ry="4" fill="#065f46" />
+          <path d="M 50 28 C 45 40 42 47 42 53 C 42 58 45 61 50 61 C 55 61 58 58 58 53 C 58 47 55 40 50 28 Z" fill="#b91c1c" />
+          <path d="M 50 36 C 47 43 45 48 45 53 C 45 56 47 58 50 58 C 53 58 55 56 55 53 C 55 48 53 43 50 36 Z" fill="#f59e0b" />
+          <rect x="36" y="66" width="28" height="9" rx="3" fill="#065f46" />
+          <text x="50" y="73" font-size="6.5" font-weight="bold" fill="#ffffff" text-anchor="middle">1942</text>
+        </svg>
+      </div>
+      <div class="brand-titles">
+        <h1>TOLLYGUNGE DEEPAK SANGHA <span class="estd-badge">ESTD 1942</span></h1>
+        <div class="bengali-sub">টালিগঞ্জ দীপক সংঘ • অনুদান সংগ্রহ প্রোটাল</div>
+	<div> WE ARE BROTHERS </div>
+      </div>
+    </div>
+    <div class="header-btns">
+      <button class="btn btn-rollover" onclick="rollOverToNextYear()" title="End cycle and shift columns to next year">
+        🔄 Move to Next Year
+      </button>
+      <button class="btn btn-outline" style="color:white; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);" onclick="fetchFromGoogleSheets()">Fetch</button>
+      <button class="btn btn-gold" id="syncBtn" onclick="syncWithGoogleSheets('syncAll')">Push to Sheet</button>
+      <button class="btn btn-outline" style="color:white; border-color: rgba(255,255,255,0.4); background: transparent;" onclick="openSettingsModal()">Config</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="statusBanner"></div>
+
+    <div class="festival-badge-strip">
+      <div class="festival-title">শ্রী শ্রী শ্যামা পূজা</div>
+      <div class="sub-tag">Automated Multi-Year Rolling Ledger</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card card-target">
+        <div class="label">Total Expected Target</div>
+        <div id="statTarget" class="value val-target">₹0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Total Collected (Active)</div>
+        <div id="statPaid" class="value val-paid">₹0</div>
+      </div>
+      <div class="stat-card card-pending">
+        <div class="label">Pending Balance</div>
+        <div id="statPending" class="value val-pending">₹0</div>
+      </div>
+      <div class="stat-card card-count">
+        <div class="label">Households Count</div>
+        <div id="statCount" class="value val-count">0</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search by name, address, phone, or bill #..." oninput="renderTable()">
+        <select id="statusFilter" onchange="renderTable()" style="max-width: 140px;">
+          <option value="ALL">All Status</option>
+          <option value="Paid">Paid</option>
+          <option value="Pending">Pending</option>
+          <option value="Partial">Partial</option>
+          <option value="TRASH">Archived (Trash)</option>
+        </select>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button class="btn btn-club" onclick="openAddResidentModal()">+ Add Resident</button>
+        <button class="btn btn-outline" onclick="exportCSV()">Export CSV</button>
+        <button class="btn btn-outline" onclick="document.getElementById('fileImport').click()">Import JSON</button>
+        <input type="file" id="fileImport" accept=".json" style="display:none;" onchange="importJSON(event)">
+        <button class="btn btn-outline" onclick="exportJSON()">Backup JSON</button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Resident / Family</th>
+            <th>Locality Address</th>
+            <th style="text-align: right;" id="th2YrAgo">2 Yrs Ago (₹)</th>
+            <th style="text-align: right;" id="th1YrAgo">Last Year (₹)</th>
+            <th style="text-align: right;">Target (₹)</th>
+            <th style="text-align: right;" id="thCurrYear">Collected (₹)</th>
+            <th style="text-align: center;">Status</th>
+            <th>Mode</th>
+            <th>Collector</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="residentTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Resident Modal -->
+  <div id="residentModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalTitle">Resident Details</h3>
+        <button class="modal-close" onclick="closeResidentModal()">&times;</button>
+      </div>
+      <form class="modal-body" onsubmit="handleFormSubmit(event)">
+        <input type="hidden" id="formId">
+        <div class="form-group">
+          <label>Resident Name *</label>
+          <input type="text" id="formName" required placeholder="e.g. Subir Mukherjee">
+        </div>
+        <div class="form-group">
+          <label>Address / Flat / Holding No. *</label>
+          <input type="text" id="formAddress" required placeholder="e.g. Flat 1A, Block 1">
+        </div>
+        <div class="form-group">
+          <label>Phone Number (for WhatsApp receipt)</label>
+          <input type="tel" id="formPhone" placeholder="10-digit mobile number">
+        </div>
+
+        <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 12px;">
+          <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">Past Contribution Records</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label id="lbl2YrAmount">2 Yrs Ago Amount (₹)</label>
+              <input type="number" id="form2YrAmount" value="0" min="0">
+            </div>
+            <div class="form-group">
+              <label>2 Yrs Ago Bill #</label>
+              <input type="text" id="form2YrBill" placeholder="e.g. B-2024-012">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label id="lbl1YrAmount">Last Year Amount (₹)</label>
+              <input type="number" id="form1YrAmount" value="0" min="0" oninput="autoFillTarget()">
+            </div>
+            <div class="form-group">
+              <label>Last Year Bill #</label>
+              <input type="text" id="form1YrBill" placeholder="e.g. B-2025-015">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Target Amount (₹)</label>
+            <input type="number" id="formTarget" value="500" min="0">
+          </div>
+          <div class="form-group">
+            <label id="lblCurrAmount">Current Collected (₹)</label>
+            <input type="number" id="formCurrAmount" value="0" min="0">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Current Bill / Receipt #</label>
+            <input type="text" id="formCurrBill" placeholder="e.g. B-2026-001">
+          </div>
+          <div class="form-group">
+            <label>Payment Status</label>
+            <select id="formStatus">
+              <option value="Pending">Pending</option>
+              <option value="Paid">Paid</option>
+              <option value="Partial">Partial</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Payment Mode</label>
+            <select id="formMode">
+              <option value="Cash">Cash</option>
+              <option value="UPI">UPI (GPay / PhonePe / Paytm)</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Collected By</label>
+            <input type="text" id="formCollector" placeholder="Member name">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeResidentModal()">Cancel</button>
+          <button type="submit" class="btn btn-club">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Apps Script Settings</h3>
+        <button class="modal-close" onclick="closeSettingsModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 12px;">Active Web App Endpoint:</p>
+        <div class="form-group">
+          <input type="text" id="scriptUrlInput">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeSettingsModal()">Close</button>
+          <button type="button" class="btn btn-club" onclick="saveSettings()">Save Configuration</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_API_URL= "https://script.google.com/macros/s/AKfycbxPEwJkJazKWiRO6Kpmv840iA6x0tjvcn8YvskcJpB_wvZ8EpDOzQEQDKvJ5Nq1qmMfKg/exec";
+    const STORAGE_KEY = "deepak_sangha_rolling_ledger";
+    const API_URL_KEY = "chanda_apps_script_url";
+
+    function getApiUrl() {
+      return localStorage.getItem(API_URL_KEY) || DEFAULT_API_URL;
+    }
+
+    const currentYear = new Date().getFullYear();
+    const lastYear = currentYear - 1;
+    const twoYearsAgo = currentYear - 2;
+
+    // Set dynamic table header titles
+    document.getElementById("th2YrAgo").innerText = `${twoYearsAgo} (₹)`;
+    document.getElementById("th1YrAgo").innerText = `${lastYear} (₹)`;
+    document.getElementById("thCurrYear").innerText = `${currentYear} (₹)`;
+    document.getElementById("lbl2YrAmount").innerText = `${twoYearsAgo} Amount (₹)`;
+    document.getElementById("lbl1YrAmount").innerText = `${lastYear} Amount (₹)`;
+    document.getElementById("lblCurrAmount").innerText = `${currentYear} Collected (₹)`;
+
+    let residents = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+    if (!residents || residents.length === 0) {
+      residents = [
+        
+      ];
+      saveData();
+    }
+
+    function showBanner(message, type = "info") {
+      const banner = document.getElementById("statusBanner");
+      banner.className = `banner-${type}`;
+      banner.innerText = message;
+      banner.style.display = "block";
+      setTimeout(() => { banner.style.display = "none"; }, 5000);
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(residents));
+      renderTable();
+    }
+
+    function autoFillTarget() {
+      const lastYrVal = Number(document.getElementById("form1YrAmount").value) || 0;
+      if (lastYrVal > 0) {
+        document.getElementById("formTarget").value = lastYrVal;
+      }
+    }
+
+    function openAddResidentModal() {
+      document.getElementById("modalTitle").innerText = "Add Resident Record";
+      document.getElementById("formId").value = "";
+      document.getElementById("formName").value = "";
+      document.getElementById("formAddress").value = "";
+      document.getElementById("formPhone").value = "";
+      document.getElementById("form2YrAmount").value = "0";
+      document.getElementById("form2YrBill").value = "";
+      document.getElementById("form1YrAmount").value = "500";
+      document.getElementById("form1YrBill").value = "";
+      document.getElementById("formTarget").value = "500";
+      document.getElementById("formCurrAmount").value = "0";
+      document.getElementById("formCurrBill").value = "";
+      document.getElementById("formStatus").value = "Pending";
+      document.getElementById("formMode").value = "Cash";
+      document.getElementById("formCollector").value = "";
+      document.getElementById("residentModal").classList.add("active");
+    }
+
+    function closeResidentModal() {
+      document.getElementById("residentModal").classList.remove("active");
+    }
+
+    function openSettingsModal() {
+      document.getElementById("scriptUrlInput").value = getApiUrl();
+      document.getElementById("settingsModal").classList.add("active");
+    }
+
+    function closeSettingsModal() {
+      document.getElementById("settingsModal").classList.remove("active");
+    }
+
+    function saveSettings() {
+      const url = document.getElementById("scriptUrlInput").value.trim();
+      localStorage.setItem(API_URL_KEY, url || DEFAULT_API_URL);
+      closeSettingsModal();
+      showBanner("Script URL configuration saved!", "success");
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById("formId").value || ("TDS-" + Math.floor(100 + Math.random() * 900));
+      const target = Number(document.getElementById("formTarget").value) || 0;
+      const currPaid = Number(document.getElementById("formCurrAmount").value) || 0;
+      
+      let status = document.getElementById("formStatus").value;
+      if (currPaid >= target && target > 0) status = "Paid";
+      else if (currPaid > 0 && currPaid < target) status = "Partial";
+
+      const record = {
+        id: id,
+        name: document.getElementById("formName").value.trim(),
+        address: document.getElementById("formAddress").value.trim(),
+        phone: document.getElementById("formPhone").value.trim(),
+        secondPreviousYearAmount: Number(document.getElementById("form2YrAmount").value) || 0,
+        secondPreviousYearBill: document.getElementById("form2YrBill").value.trim(),
+        previousYearAmount: Number(document.getElementById("form1YrAmount").value) || 0,
+        previousYearBill: document.getElementById("form1YrBill").value.trim(),
+        targetAmount: target,
+        currentYearAmount: currPaid,
+        currentYearBill: document.getElementById("formCurrBill").value.trim(),
+        status: status,
+        paymentMode: document.getElementById("formMode").value,
+        collectedBy: document.getElementById("formCollector").value.trim(),
+        updatedAt: new Date().toISOString(),
+        active: true
+      };
+
+      const existingIndex = residents.findIndex(r => r.id === id);
+      if (existingIndex >= 0) {
+        residents[existingIndex] = { ...residents[existingIndex], ...record };
+      } else {
+        residents.unshift(record);
+      }
+
+      saveData();
+      closeResidentModal();
+      showBanner(`Record updated for ${record.name}`, "success");
+    }
+
+    function editResident(id) {
+      const item = residents.find(r => r.id === id);
+      if (!item) return;
+
+      document.getElementById("modalTitle").innerText = "Edit Resident Record";
+      document.getElementById("formId").value = item.id;
+      document.getElementById("formName").value = item.name;
+      document.getElementById("formAddress").value = item.address;
+      document.getElementById("formPhone").value = item.phone || "";
+      document.getElementById("form2YrAmount").value = item.secondPreviousYearAmount || 0;
+      document.getElementById("form2YrBill").value = item.secondPreviousYearBill || "";
+      document.getElementById("form1YrAmount").value = item.previousYearAmount || 0;
+      document.getElementById("form1YrBill").value = item.previousYearBill || "";
+      document.getElementById("formTarget").value = item.targetAmount || 0;
+      document.getElementById("formCurrAmount").value = item.currentYearAmount || 0;
+      document.getElementById("formCurrBill").value = item.currentYearBill || "";
+      document.getElementById("formStatus").value = item.status;
+      document.getElementById("formMode").value = item.paymentMode || "Cash";
+      document.getElementById("formCollector").value = item.collectedBy || "";
+      
+      document.getElementById("residentModal").classList.add("active");
+    }
+
+    function toggleArchive(id, activeState) {
+      const item = residents.find(r => r.id === id);
+      if (item) {
+        item.active = activeState;
+        item.updatedAt = new Date().toISOString();
+        saveData();
+      }
+    }
+
+    // Move Current Year to Previous Year & Previous Year to 2 Years Ago
+    function rollOverToNextYear() {
+      const confirmMsg = "Are you sure you want to end this collection campaign and roll over?\n\n" +
+        "• Previous Year data moves to 2 Years Ago (Amount & Bill)\n" +
+        "• Current Year data moves to Previous Year (Amount & Bill)\n" +
+        "• Active Collection resets to 0 (Pending) with target = last year\n" +
+        "• A full backup JSON file will be downloaded\n" +
+        "• A permanent Archive snapshot tab will be created in your Google Sheet";
+
+      if (!confirm(confirmMsg)) return;
+
+      // 1. Trigger automated local backup download
+      exportJSON();
+
+      // 2. Perform rolling shift
+      residents = residents.map(r => {
+        const prevAmount = Number(r.previousYearAmount) || 0;
+        const prevBill = r.previousYearBill || "";
+        const currAmount = Number(r.currentYearAmount) || 0;
+        const currBill = r.currentYearBill || "";
+
+        return {
+          ...r,
+          secondPreviousYearAmount: prevAmount,
+          secondPreviousYearBill: prevBill,
+          previousYearAmount: currAmount,
+          previousYearBill: currBill,
+          targetAmount: currAmount > 0 ? currAmount : (prevAmount > 0 ? prevAmount : 500),
+          currentYearAmount: 0,
+          currentYearBill: "",
+          status: "Pending",
+          paymentMode: "Cash",
+          collectedBy: "",
+          updatedAt: new Date().toISOString()
+        };
+      });
+
+      saveData();
+      showBanner("Cycle rolled over successfully! Syncing snapshot to Google Sheets...", "info");
+      syncWithGoogleSheets("archiveAndRollover");
+    }
+
+    function sendWhatsApp(id) {
+      const item = residents.find(r => r.id === id);
+      if (!item || !item.phone) {
+        alert("No phone number recorded for this resident.");
+        return;
+      }
+      const num = item.phone.replace(/\D/g, "");
+      const fullNum = num.length === 10 ? "91" + num : num;
+
+      const message = 
+`*টালিগঞ্জ দীপক সংঘ (Estd. 1942)*
+*TOLLYGUNGE DEEPAK SANGHA*
+----------------------------------------
+নমস্কার ${item.name},
+শ্রী শ্রী শ্যামা পূজা উপলক্ষে আপনার চাঁদা বাবদ অর্থ সফলভাবে জমা নেওয়া হয়েছে।
+
+• রশিদ নং (Bill / Receipt ID): *${item.currentYearBill || item.id}*
+• প্রাপ্ত অর্থ (Amount Paid): *₹${item.currentYearAmount}*
+• মাধ্যম (Payment Mode): *${item.paymentMode}*
+• সংগ্রহকারী (Collected By): *${item.collectedBy || "Authorized Member"}*
+
+টালিগঞ্জ দীপক সংঘের পক্ষ থেকে আপনাকে ও আপনার পরিবারকে আন্তরিক শুভেচ্ছা।`;
+
+      window.open(`https://wa.me/${fullNum}?text=${encodeURIComponent(message)}`, "_blank");
+    }
+
+    function renderTable() {
+      const q = (document.getElementById("searchInput").value || "").toLowerCase();
+      const filter = document.getElementById("statusFilter").value;
+
+      const filtered = residents.filter(r => {
+        const matchesQuery = (r.name || "").toLowerCase().includes(q) || 
+                             (r.address || "").toLowerCase().includes(q) || 
+                             (r.phone || "").includes(q) ||
+                             (r.currentYearBill || "").toLowerCase().includes(q);
+        if (filter === "TRASH") return matchesQuery && r.active === false;
+        if (r.active === false) return false;
+        if (filter === "ALL") return matchesQuery;
+        return matchesQuery && r.status === filter;
+      });
+
+      const active = residents.filter(r => r.active !== false);
+      const totalExpected = active.reduce((sum, r) => sum + (Number(r.targetAmount) || 0), 0);
+      const totalCollected = active.reduce((sum, r) => sum + (Number(r.currentYearAmount) || 0), 0);
+
+      document.getElementById("statTarget").innerText = "₹" + totalExpected.toLocaleString();
+      document.getElementById("statPaid").innerText = "₹" + totalCollected.toLocaleString();
+      document.getElementById("statPending").innerText = "₹" + Math.max(0, totalExpected - totalCollected).toLocaleString();
+      document.getElementById("statCount").innerText = active.length;
+
+      const tbody = document.getElementById("residentTbody");
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:34px; color:#94a3b8;">No matching records found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(r => {
+        const badgeClass = r.status === "Paid" ? "badge-paid" : (r.status === "Partial" ? "badge-partial" : "badge-pending");
+        return `
+          <tr>
+            <td>
+              <div style="font-weight:700; color:#0f172a;">${r.name}</div>
+              <div style="font-size:0.75rem; color:#94a3b8; font-family:monospace;">${r.id}</div>
+            </td>
+            <td style="color:#475569;">${r.address}</td>
+            <td style="text-align:right;">
+              <span style="font-weight:600;">₹${r.secondPreviousYearAmount || 0}</span>
+              ${r.secondPreviousYearBill ? `<span class="bill-tag">#${r.secondPreviousYearBill}</span>` : ""}
+            </td>
+            <td style="text-align:right;">
+              <span style="font-weight:600;">₹${r.previousYearAmount || 0}</span>
+              ${r.previousYearBill ? `<span class="bill-tag">#${r.previousYearBill}</span>` : ""}
+            </td>
+            <td style="text-align:right; font-weight:700; color:#b45309;">₹${r.targetAmount || 0}</td>
+            <td style="text-align:right;">
+              <span style="font-weight:700; color:var(--primary); font-size:0.95rem;">₹${r.currentYearAmount || 0}</span>
+              ${r.currentYearBill ? `<span class="bill-tag">#${r.currentYearBill}</span>` : ""}
+            </td>
+            <td style="text-align:center;"><span class="badge ${badgeClass}">${r.status}</span></td>
+            <td style="color:#64748b; font-size:0.85rem;">${r.paymentMode || "Cash"}</td>
+            <td style="color:#64748b; font-size:0.85rem;">${r.collectedBy || "-"}</td>
+            <td style="text-align:right; white-space:nowrap;">
+              ${r.phone ? `<button class="btn btn-wa btn-sm" onclick="sendWhatsApp('${r.id}')" title="WhatsApp Receipt">WA</button>` : ""}
+              <button class="btn btn-outline btn-sm" onclick="editResident('${r.id}')">Edit</button>
+              ${r.active !== false 
+                ? `<button class="btn btn-danger btn-sm" onclick="toggleArchive('${r.id}', false)">Delete</button>` 
+                : `<button class="btn btn-restore btn-sm" onclick="toggleArchive('${r.id}', true)">Restore</button>`
+              }
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function exportCSV() {
+      const headers = ["ID", "Name", "Address", "Phone", "SecondPreviousYear_Amount", "SecondPreviousYear_Bill", "PreviousYear_Amount", "PreviousYear_Bill", "Target_Amount", "CurrentYear_Amount", "CurrentYear_Bill", "Status", "PaymentMode", "CollectedBy", "Active"];
+      const rows = residents.map(r => [
+        `"${r.id}"`, `"${r.name}"`, `"${r.address}"`, `"${r.phone || ""}"`,
+        r.secondPreviousYearAmount || 0, `"${r.secondPreviousYearBill || ""}"`,
+        r.previousYearAmount || 0, `"${r.previousYearBill || ""}"`,
+        r.targetAmount || 0, r.currentYearAmount || 0, `"${r.currentYearBill || ""}"`,
+        `"${r.status}"`, `"${r.paymentMode}"`, `"${r.collectedBy || ""}"`, r.active !== false
+      ]);
+      const csv = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+      const a = document.createElement("a");
+      a.href = encodeURI(csv);
+      a.download = `Deepak_Sangha_Chanda_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+
+    function exportJSON() {
+      const blob = new Blob([JSON.stringify(residents, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `deepak_sangha_backup_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (Array.isArray(data)) {
+            residents = data;
+            saveData();
+            showBanner(`Imported ${data.length} records successfully!`, "success");
+          } else {
+            alert("Uploaded file does not contain a valid JSON record list.");
+          }
+        } catch (err) {
+          alert("Error parsing JSON file: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    async function syncWithGoogleSheets(action = "syncAll") {
+      const url = getApiUrl();
+      const syncBtn = document.getElementById("syncBtn");
+      syncBtn.disabled = true;
+      syncBtn.innerText = "Pushing...";
+      showBanner("Uploading records to Google Sheets...", "info");
+
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: action, archiveYear: currentYear, data: residents })
+        });
+        const result = await res.json();
+        if (result.success) {
+          showBanner("Google Sheet updated successfully!", "success");
+        } else {
+          showBanner("Sync failed: " + result.error, "error");
+        }
+      } catch (err) {
+        showBanner("Error communicating with Sheet: " + err.message, "error");
+      } finally {
+        syncBtn.disabled = false;
+        syncBtn.innerText = "Push to Sheet";
+      }
+    }
+
+    async function fetchFromGoogleSheets() {
+      const url = getApiUrl();
+      showBanner("Fetching latest data from Google Sheets...", "info");
+
+      try {
+        const res = await fetch(url);
+        const result = await res.json();
+        if (result.success && Array.isArray(result.data)) {
+          if (result.data.length > 0) {
+            residents = result.data.map(item => ({
+              id: item.ID || item.id || ("TDS-" + Math.floor(100 + Math.random() * 900)),
+              name: item.Name || item.name || "",
+              address: item.Address || item.address || "",
+              phone: String(item.Phone || item.phone || ""),
+              secondPreviousYearAmount: Number(item.SecondPreviousYear_Amount || item.secondPreviousYearAmount || 0),
+              secondPreviousYearBill: item.SecondPreviousYear_Bill || item.secondPreviousYearBill || "",
+              previousYearAmount: Number(item.PreviousYear_Amount || item.previousYearAmount || 0),
+              previousYearBill: item.PreviousYear_Bill || item.previousYearBill || "",
+              targetAmount: Number(item.Target_Amount || item.targetAmount || 0),
+              currentYearAmount: Number(item.CurrentYear_Amount || item.currentYearAmount || 0),
+              currentYearBill: item.CurrentYear_Bill || item.currentYearBill || "",
+              status: item.Status || item.status || "Pending",
+              paymentMode: item.PaymentMode || item.paymentMode || "Cash",
+              collectedBy: item.CollectedBy || item.collectedBy || "",
+              updatedAt: item.UpdatedAt || item.updatedAt || new Date().toISOString(),
+              active: item.Active !== undefined ? (item.Active === true || item.Active === "true") : true
+            }));
+            saveData();
+            showBanner(`Loaded ${residents.length} records from Google Sheet!`, "success");
+          } else {
+            showBanner("Google Sheet is currently empty.", "info");
+          }
+        } else {
+          showBanner("Failed to retrieve sheet data: " + (result.error || "Unknown error"), "error");
+        }
+      } catch (err) {
+        showBanner("Fetch error: " + err.message, "error");
+      }
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
