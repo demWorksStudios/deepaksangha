@@ -86,6 +86,9 @@
     .btn-outline:hover { background: #f8fafc; }
     .btn-sm { padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; }
     .btn-danger { background: #fee2e2; color: #991b1b; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-danger-solid { background: #dc2626; color: white; }
+    .btn-danger-solid:hover { background: #b91c1c; }
     .btn-restore { background: #dcfce7; color: #166534; }
     .btn-wa { background: #25d366; color: white; }
 
@@ -105,8 +108,10 @@
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); display: none; align-items: center; justify-content: center; z-index: 999; padding: 16px; }
     .modal-overlay.active { display: flex; }
     .modal-card { background: white; width: 100%; max-width: 520px; border-radius: 10px; overflow: hidden; box-shadow: 0 14px 35px rgba(0,0,0,0.3); border-top: 4px solid var(--primary); }
+    .modal-card.modal-danger { border-top-color: #dc2626; max-width: 440px; }
     .modal-header { padding: 14px 18px; background: #f8fafc; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
     .modal-header h3 { font-size: 1rem; font-weight: 800; color: var(--primary-dark); }
+    .modal-card.modal-danger .modal-header h3 { color: #991b1b; }
     .modal-close { font-size: 1.4rem; border: none; background: transparent; cursor: pointer; color: #94a3b8; }
     .modal-body { padding: 18px; max-height: 80vh; overflow-y: auto; }
     .form-group { margin-bottom: 12px; }
@@ -136,8 +141,8 @@
       </div>
       <div class="brand-titles">
         <h1>TOLLYGUNGE DEEPAK SANGHA <span class="estd-badge">ESTD 1942</span></h1>
-        <div class="bengali-sub">টালিগঞ্জ দীপক সংঘ • অনুদান সংগ্রহ প্রোটাল</div>
-	<div> WE ARE BROTHERS </div>
+        <div class="bengali-sub">টালিগঞ্জ দীপক সংঘ • অনুদান সংগ্রহ পোর্টাল</div>
+        <div style="font-size: 0.75rem; letter-spacing: 1px; color: #cbd5e1; font-weight: 700;">WE ARE BROTHERS</div>
       </div>
     </div>
     <div class="header-btns">
@@ -190,6 +195,7 @@
       </div>
       <div style="display: flex; gap: 8px; flex-wrap: wrap;">
         <button class="btn btn-club" onclick="openAddResidentModal()">+ Add Resident</button>
+        <button class="btn btn-danger" id="emptyTrashBtn" style="display:none;" onclick="confirmEmptyTrash()">Empty Trash & Sync</button>
         <button class="btn btn-outline" onclick="exportCSV()">Export CSV</button>
         <button class="btn btn-outline" onclick="document.getElementById('fileImport').click()">Import JSON</button>
         <input type="file" id="fileImport" accept=".json" style="display:none;" onchange="importJSON(event)">
@@ -313,6 +319,28 @@
     </div>
   </div>
 
+  <!-- Permanent Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal-overlay">
+    <div class="modal-card modal-danger">
+      <div class="modal-header">
+        <h3 id="deleteModalTitle">⚠️ Confirm Permanent Deletion</h3>
+        <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.9rem; color: #1e293b; line-height: 1.5; margin-bottom: 12px;" id="deleteModalMessage">
+          Are you sure you want to permanently delete this record?
+        </p>
+        <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 10px; font-size: 0.8rem; color: #991b1b; line-height: 1.4;">
+          <strong>Warning:</strong> This will delete the record completely from local storage AND automatically push the deletion to Google Sheets right away. This action cannot be undone.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">Cancel</button>
+          <button type="button" class="btn btn-danger-solid" id="confirmDeleteBtn" onclick="executePermanentDelete()">Delete & Update Sheet</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Settings Modal -->
   <div id="settingsModal" class="modal-overlay">
     <div class="modal-card">
@@ -356,12 +384,9 @@
 
     let residents = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
 
-    if (!residents || residents.length === 0) {
-      residents = [
-        
-      ];
-      saveData();
-    }
+    // Variable for managing deletion targets
+    let pendingDeleteId = null;
+    let isDeletingAllTrash = false;
 
     function showBanner(message, type = "info") {
       const banner = document.getElementById("statusBanner");
@@ -486,13 +511,80 @@
       document.getElementById("residentModal").classList.add("active");
     }
 
+    // Soft delete to Trash or restore
     function toggleArchive(id, activeState) {
       const item = residents.find(r => r.id === id);
       if (item) {
         item.active = activeState;
         item.updatedAt = new Date().toISOString();
         saveData();
+        showBanner(activeState ? `Restored ${item.name}` : `Moved ${item.name} to Trash`, "info");
       }
+    }
+
+    // Modal Confirmation for Permanent Delete from Trash (and Sheet)
+    function promptPermanentDelete(id) {
+      const item = residents.find(r => r.id === id);
+      if (!item) return;
+
+      pendingDeleteId = id;
+      isDeletingAllTrash = false;
+
+      document.getElementById("deleteModalTitle").innerText = "⚠️ Delete from Trash & Sheet";
+      document.getElementById("deleteModalMessage").innerHTML = 
+        `Are you sure you want to permanently delete <strong>${item.name}</strong> (ID: <code>${item.id}</code>)?<br><br>` +
+        `This record will be permanently deleted from this app and removed from your Google Sheet.`;
+      
+      document.getElementById("deleteModal").classList.add("active");
+    }
+
+    function confirmEmptyTrash() {
+      const trashCount = residents.filter(r => r.active === false).length;
+      if (trashCount === 0) {
+        alert("The trash is already empty.");
+        return;
+      }
+
+      pendingDeleteId = null;
+      isDeletingAllTrash = true;
+
+      document.getElementById("deleteModalTitle").innerText = "⚠️ Empty Entire Trash";
+      document.getElementById("deleteModalMessage").innerHTML = 
+        `Are you sure you want to permanently delete all <strong>${trashCount}</strong> archived record(s) in the trash?<br><br>` +
+        `These records will be permanently removed from this app and wiped from your Google Sheet.`;
+
+      document.getElementById("deleteModal").classList.add("active");
+    }
+
+    function closeDeleteModal() {
+      document.getElementById("deleteModal").classList.remove("active");
+      pendingDeleteId = null;
+      isDeletingAllTrash = false;
+    }
+
+    async function executePermanentDelete() {
+      const deleteBtn = document.getElementById("confirmDeleteBtn");
+      deleteBtn.disabled = true;
+      deleteBtn.innerText = "Deleting & Syncing...";
+
+      if (isDeletingAllTrash) {
+        residents = residents.filter(r => r.active !== false);
+        saveData();
+        closeDeleteModal();
+        showBanner("Emptied trash locally. Updating Google Sheet...", "info");
+        await syncWithGoogleSheets("syncAll");
+      } else if (pendingDeleteId) {
+        const item = residents.find(r => r.id === pendingDeleteId);
+        const name = item ? item.name : "Record";
+        residents = residents.filter(r => r.id !== pendingDeleteId);
+        saveData();
+        closeDeleteModal();
+        showBanner(`Permanently deleted ${name}. Updating Google Sheet...`, "info");
+        await syncWithGoogleSheets("syncAll");
+      }
+
+      deleteBtn.disabled = false;
+      deleteBtn.innerText = "Delete & Update Sheet";
     }
 
     // Move Current Year to Previous Year & Previous Year to 2 Years Ago
@@ -567,6 +659,15 @@
       const q = (document.getElementById("searchInput").value || "").toLowerCase();
       const filter = document.getElementById("statusFilter").value;
 
+      // Toggle visibility of the "Empty Trash & Sync" button
+      const emptyTrashBtn = document.getElementById("emptyTrashBtn");
+      const trashCount = residents.filter(r => r.active === false).length;
+      if (filter === "TRASH" && trashCount > 0) {
+        emptyTrashBtn.style.display = "inline-flex";
+      } else {
+        emptyTrashBtn.style.display = "none";
+      }
+
       const filtered = residents.filter(r => {
         const matchesQuery = (r.name || "").toLowerCase().includes(q) || 
                              (r.address || "").toLowerCase().includes(q) || 
@@ -589,7 +690,7 @@
 
       const tbody = document.getElementById("residentTbody");
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:34px; color:#94a3b8;">No matching records found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:34px; color:#94a3b8;">${filter === "TRASH" ? "Trash is currently empty." : "No matching records found."}</td></tr>`;
         return;
       }
 
@@ -619,11 +720,14 @@
             <td style="color:#64748b; font-size:0.85rem;">${r.paymentMode || "Cash"}</td>
             <td style="color:#64748b; font-size:0.85rem;">${r.collectedBy || "-"}</td>
             <td style="text-align:right; white-space:nowrap;">
-              ${r.phone ? `<button class="btn btn-wa btn-sm" onclick="sendWhatsApp('${r.id}')" title="WhatsApp Receipt">WA</button>` : ""}
-              <button class="btn btn-outline btn-sm" onclick="editResident('${r.id}')">Edit</button>
+              ${r.phone && r.active !== false ? `<button class="btn btn-wa btn-sm" onclick="sendWhatsApp('${r.id}')" title="WhatsApp Receipt">WA</button>` : ""}
+              ${r.active !== false ? `<button class="btn btn-outline btn-sm" onclick="editResident('${r.id}')">Edit</button>` : ""}
               ${r.active !== false 
-                ? `<button class="btn btn-danger btn-sm" onclick="toggleArchive('${r.id}', false)">Delete</button>` 
-                : `<button class="btn btn-restore btn-sm" onclick="toggleArchive('${r.id}', true)">Restore</button>`
+                ? `<button class="btn btn-danger btn-sm" onclick="toggleArchive('${r.id}', false)" title="Move to Trash">Delete</button>` 
+                : `
+                   <button class="btn btn-restore btn-sm" onclick="toggleArchive('${r.id}', true)" title="Restore to active records">Restore</button>
+                   <button class="btn btn-danger-solid btn-sm" onclick="promptPermanentDelete('${r.id}')" title="Delete permanently from app and Google Sheet">Delete Permanently</button>
+                  `
               }
             </td>
           </tr>
@@ -728,11 +832,13 @@
               paymentMode: item.PaymentMode || item.paymentMode || "Cash",
               collectedBy: item.CollectedBy || item.collectedBy || "",
               updatedAt: item.UpdatedAt || item.updatedAt || new Date().toISOString(),
-              active: item.Active !== undefined ? (item.Active === true || item.Active === "true") : true
+              active: item.Active !== undefined ? (item.Active === true || item.Active === "true" || item.Active === "TRUE") : true
             }));
             saveData();
             showBanner(`Loaded ${residents.length} records from Google Sheet!`, "success");
           } else {
+            residents = [];
+            saveData();
             showBanner("Google Sheet is currently empty.", "info");
           }
         } else {
