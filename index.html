@@ -18,9 +18,12 @@
       --border: #e2e8f0;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Bengali", sans-serif; }
-    body { background-color: var(--bg); color: var(--text-main); padding-bottom: 60px; }
+    body { background-color: var(--bg); color: var(--text-main); padding-bottom: 40px; }
 
     header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
       background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 70%, #047857 100%);
       color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;
       box-shadow: 0 4px 12px rgba(6, 78, 59, 0.2); flex-wrap: wrap; gap: 14px; border-bottom: 3px solid var(--gold);
@@ -150,7 +153,9 @@
       background: var(--card-bg); padding: 14px; border-radius: 10px; border: 1px solid var(--border);
       display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; margin-bottom: 20px;
     }
-    .search-box { display: flex; gap: 8px; flex: 1; min-width: 280px; }
+    .search-box { display: flex; gap: 8px; flex: 1; min-width: 250px; flex-wrap: wrap; }
+    .search-box input { flex: 1; min-width: 150px; }
+    .status-filter { min-width: 150px; flex: 0 0 auto; }
     input[type="text"], input[type="number"], input[type="tel"], select {
       width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; outline: none;
     }
@@ -179,6 +184,11 @@
     td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
     tr:hover { background: #fcfdfd; }
 
+    .clickable-cell { cursor: pointer; transition: all 0.2s ease; position: relative; }
+    .clickable-cell:hover { background: #f8fafc; box-shadow: inset 3px 0 0 var(--primary); }
+    .clickable-cell .resident-name { color: var(--primary); transition: color 0.2s; font-weight: 700; }
+    .clickable-cell:hover .resident-name { text-decoration: none; color: #0f172a; }
+
     .badge { padding: 3px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; display: inline-block; }
     .badge-paid { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
     .badge-partial { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
@@ -186,7 +196,7 @@
 
     .bill-tag { font-family: monospace; font-size: 0.72rem; color: #64748b; display: block; margin-top: 2px; }
 
-    .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); display: none; align-items: center; justify-content: center; z-index: 999; padding: 16px; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 16px; }
     .modal-overlay.active { display: flex; }
     .modal-card { background: white; width: 100%; max-width: 520px; border-radius: 10px; overflow: hidden; box-shadow: 0 14px 35px rgba(0,0,0,0.3); border-top: 4px solid var(--primary); }
     .modal-card.modal-danger { border-top-color: #dc2626; max-width: 440px; }
@@ -200,10 +210,60 @@
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
 
-    #statusBanner { display: none; padding: 10px 16px; margin-bottom: 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; }
+    /* Notification Overlay Banner Updates */
+    #statusBanner {
+      display: none;
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99999;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      min-width: 300px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+    #statusBanner.show {
+      display: block;
+      opacity: 1;
+    }
     .banner-info { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
     .banner-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
     .banner-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .banner-warning { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+
+    footer {
+      max-width: 1240px;
+      margin: 20px auto;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+      flex-wrap: wrap;
+    }
+
+    /* Mobile Responsive Overrides */
+    @media (max-width: 640px) {
+      .toolbar { flex-direction: column; align-items: stretch; gap: 14px; }
+      .search-box { flex-direction: column; width: 100%; }
+      .status-filter { width: 100%; min-width: 100%; }
+      #btnContainer { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px; }
+      #btnContainer .btn { width: 100%; justify-content: center; text-align: center; }
+      .puja-switcher-bar { width: 100%; flex-direction: column; }
+      .puja-tab-btn { width: 100%; justify-content: center; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      #statusBanner { top: 100px; width: 90%; min-width: auto; }
+    }
   </style>
 </head>
 <body>
@@ -227,18 +287,15 @@
       </div>
     </div>
     <div class="header-btns">
-      <button class="btn btn-rollover" onclick="rollOverToNextYear()" title="End cycle and shift columns to next year">
-        🔄 Move to Next Year
-      </button>
       <button class="btn btn-outline" style="color:white; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);" onclick="fetchFromGoogleSheets()">Fetch</button>
       <button class="btn btn-gold" id="syncBtn" onclick="syncWithGoogleSheets('syncAll')">Push to Sheet</button>
-      <button class="btn btn-outline" style="color:white; border-color: rgba(255,255,255,0.4); background: transparent;" onclick="openSettingsModal()">Config</button>
     </div>
   </header>
 
-  <div class="container">
-    <div id="statusBanner"></div>
+  <!-- Notification Banner -->
+  <div id="statusBanner"></div>
 
+  <div class="container">
     <!-- Top Puja Switcher -->
     <div class="puja-switcher-bar">
       <button class="puja-tab-btn active" id="tabShyama" onclick="switchPuja('shyama')">
@@ -287,15 +344,16 @@
     <div class="toolbar">
       <div class="search-box">
         <input type="text" id="searchInput" placeholder="Search by name, address, phone, or bill #..." oninput="renderTable()">
-        <select id="statusFilter" onchange="renderTable()" style="max-width: 140px;">
+        <select id="statusFilter" class="status-filter" onchange="renderTable()">
           <option value="ALL">All Status</option>
+          <option value="RECENT">Recently Updated (30)</option>
           <option value="Paid">Paid</option>
           <option value="Pending">Pending</option>
           <option value="Partial">Partial</option>
           <option value="TRASH">Archived</option>
         </select>
       </div>
-      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <div id="btnContainer" style="display: flex; gap: 8px; flex-wrap: wrap;">
         <button class="btn btn-club" onclick="openAddResidentModal()">+ Add Resident</button>
         <button class="btn btn-danger" id="emptyTrashBtn" style="display:none;" onclick="confirmEmptyTrash()">Empty Trash & Sync</button>
         <button class="btn btn-outline" onclick="exportCSV()">Export CSV</button>
@@ -323,6 +381,81 @@
         </thead>
         <tbody id="residentTbody"></tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- Polished View Resident Modal -->
+  <div id="viewModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="viewModalTitle">Resident Details</h3>
+        <button class="modal-close" onclick="closeViewModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="font-size: 0.95rem; color: #334155; padding: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+          <div>
+            <div id="viewName" style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin-bottom: 6px;"></div>
+            <div id="viewId" style="font-family: monospace; font-size: 0.75rem; color: #475569; background: #f1f5f9; padding: 4px 8px; border-radius: 6px; border: 1px solid #e2e8f0; display: inline-block;"></div>
+          </div>
+          <span id="viewStatus" class="badge" style="padding: 6px 12px; font-size: 0.8rem;"></span>
+        </div>
+
+        <div style="background: #f8fafc; padding: 16px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 20px;">
+          <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+            <div style="background: #e2e8f0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem;">📍</div>
+            <div>
+              <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Address</div>
+              <div id="viewAddress" style="font-weight: 600; color: #1e293b;"></div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="background: #e2e8f0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem;">📞</div>
+            <div>
+              <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Phone</div>
+              <div id="viewPhone" style="font-weight: 600; color: #1e293b;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+          <div style="background: #f8fafc; padding: 16px; border-radius: 10px; border: 1px solid var(--border);">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;" id="lblView2YrAgo">2 Yrs Ago</div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: #334155;">₹<span id="view2YrAmount"></span></div>
+            <div id="view2YrBill" style="font-size: 0.75rem; color: #64748b; margin-top: 4px; font-family: monospace;"></div>
+          </div>
+          <div style="background: #f8fafc; padding: 16px; border-radius: 10px; border: 1px solid var(--border);">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;" id="lblView1YrAgo">Last Year</div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: #334155;">₹<span id="view1YrAmount"></span></div>
+            <div id="view1YrBill" style="font-size: 0.75rem; color: #64748b; margin-top: 4px; font-family: monospace;"></div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+          <div style="background: #fffbeb; padding: 16px; border-radius: 10px; border: 1px solid #fde68a;">
+            <div style="font-size: 0.75rem; font-weight: 800; color: #92400e; text-transform: uppercase; margin-bottom: 4px;">Expected Target</div>
+            <div style="font-size: 1.4rem; font-weight: 900; color: #b45309;">₹<span id="viewTarget"></span></div>
+          </div>
+          <div style="background: #f0fdf4; padding: 16px; border-radius: 10px; border: 1px solid #bbf7d0;">
+            <div style="font-size: 0.75rem; font-weight: 800; color: #166534; text-transform: uppercase; margin-bottom: 4px;">Collected</div>
+            <div style="font-size: 1.4rem; font-weight: 900; color: #15803d;">₹<span id="viewCollected"></span></div>
+            <div id="viewCurrBill" style="font-size: 0.75rem; color: #166534; margin-top: 4px; font-family: monospace; font-weight: 600;"></div>
+          </div>
+        </div>
+
+        <div style="background: #f8fafc; padding: 14px 16px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Payment Mode</div>
+            <div id="viewMode" style="font-weight: 700; color: #0f172a; margin-top: 2px;"></div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Collected By</div>
+            <div id="viewCollector" style="font-weight: 700; color: #0f172a; margin-top: 2px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" id="viewModalFooter" style="padding: 16px 24px;">
+        <!-- Action Buttons dynamically injected here -->
+      </div>
     </div>
   </div>
 
@@ -474,6 +607,16 @@
     </div>
   </div>
 
+  <!-- Regular flow Footer replacing the sticky one -->
+  <footer>
+    <button class="btn btn-rollover" onclick="rollOverToNextYear()" title="End cycle and shift columns to next year">
+      🔄 Move to Next Year
+    </button>
+    <button class="btn btn-outline" onclick="openSettingsModal()">
+      ⚙️ Config URL
+    </button>
+  </footer>
+
   <script>
     // Endpoints & Storage Keys
     const DEFAULT_SHYAMA_API_URL = "https://script.google.com/macros/s/AKfycbxPEwJkJazKWiRO6Kpmv840iA6x0tjvcn8YvskcJpB_wvZ8EpDOzQEQDKvJ5Nq1qmMfKg/exec";
@@ -505,6 +648,7 @@
     if (!PUJA_CONFIG[activePuja]) activePuja = "shyama";
 
     const DROPDOWN_STATE_KEY = "deepak_sangha_stats_open";
+    let bannerTimeout; // Store banner timeout for smooth transitions
 
     function getApiUrl(pujaId = activePuja) {
       const cfg = PUJA_CONFIG[pujaId];
@@ -526,6 +670,8 @@
     document.getElementById("lbl2YrAmount").innerText = `${twoYearsAgo} Amount (₹)`;
     document.getElementById("lbl1YrAmount").innerText = `${lastYear} Amount (₹)`;
     document.getElementById("lblCurrAmount").innerText = `${currentYear} Collected (₹)`;
+    document.getElementById("lblView2YrAgo").innerText = `${twoYearsAgo} Amount`;
+    document.getElementById("lblView1YrAgo").innerText = `${lastYear} Amount`;
 
     // Load data for active puja
     let residents = [];
@@ -568,7 +714,6 @@
       residents = loadPujaData(pujaId);
       updateTabBadges();
       renderTable();
-      showBanner(`Switched to ${PUJA_CONFIG[pujaId].name} portal`, "info");
     }
 
     function updateTabBadges() {
@@ -596,12 +741,24 @@
       }
     }
 
-    function showBanner(message, type = "info") {
+    function showBanner(message, type = "info", stayDuration = 5000) {
       const banner = document.getElementById("statusBanner");
       banner.className = `banner-${type}`;
       banner.innerText = message;
-      banner.style.display = "block";
-      setTimeout(() => { banner.style.display = "none"; }, 5000);
+      
+      // Clear any existing timeout to avoid premature hiding
+      if (bannerTimeout) {
+        clearTimeout(bannerTimeout);
+      }
+      
+      banner.classList.add("show");
+      
+      // If a specific duration is given, hide it after that time
+      if (stayDuration > 0) {
+        bannerTimeout = setTimeout(() => { 
+          banner.classList.remove("show"); 
+        }, stayDuration);
+      }
     }
 
     function saveData() {
@@ -643,6 +800,57 @@
 
     function closeResidentModal() {
       document.getElementById("residentModal").classList.remove("active");
+    }
+    
+    // Polished View Resident Modal Logic
+    function viewResident(id) {
+      const item = residents.find(r => r.id === id);
+      if (!item) return;
+
+      document.getElementById("viewName").innerText = item.name;
+      document.getElementById("viewId").innerText = item.id;
+      
+      const statusBadge = document.getElementById("viewStatus");
+      statusBadge.innerText = item.status;
+      statusBadge.className = "badge " + (item.status === "Paid" ? "badge-paid" : (item.status === "Partial" ? "badge-partial" : "badge-pending"));
+      
+      document.getElementById("viewAddress").innerText = item.address || "-";
+      document.getElementById("viewPhone").innerText = item.phone || "-";
+      
+      document.getElementById("view2YrAmount").innerText = item.secondPreviousYearAmount || 0;
+      document.getElementById("view2YrBill").innerText = item.secondPreviousYearBill ? `Bill: #${item.secondPreviousYearBill}` : "";
+      
+      document.getElementById("view1YrAmount").innerText = item.previousYearAmount || 0;
+      document.getElementById("view1YrBill").innerText = item.previousYearBill ? `Bill: #${item.previousYearBill}` : "";
+      
+      document.getElementById("viewTarget").innerText = item.targetAmount || 0;
+      document.getElementById("viewCollected").innerText = item.currentYearAmount || 0;
+      document.getElementById("viewCurrBill").innerText = item.currentYearBill ? `Bill: #${item.currentYearBill}` : "";
+      
+      document.getElementById("viewMode").innerText = item.paymentMode || "-";
+      document.getElementById("viewCollector").innerText = item.collectedBy || "-";
+
+      const footer = document.getElementById("viewModalFooter");
+      if (item.active !== false) {
+         footer.innerHTML = `
+           <button class="btn btn-outline" onclick="closeViewModal()">Close</button>
+           ${item.phone ? `<button class="btn btn-wa" onclick="sendWhatsApp('${item.id}')">WA Receipt</button>` : ''}
+           <button class="btn btn-club" onclick="closeViewModal(); editResident('${item.id}')">Edit</button>
+           <button class="btn btn-danger" onclick="closeViewModal(); toggleArchive('${item.id}', false)">Delete</button>
+         `;
+      } else {
+         footer.innerHTML = `
+           <button class="btn btn-outline" onclick="closeViewModal()">Close</button>
+           <button class="btn btn-restore" onclick="closeViewModal(); toggleArchive('${item.id}', true)">Restore</button>
+           <button class="btn btn-danger-solid" onclick="closeViewModal(); promptPermanentDelete('${item.id}')">Delete Permanently</button>
+         `;
+      }
+
+      document.getElementById("viewModal").classList.add("active");
+    }
+
+    function closeViewModal() {
+      document.getElementById("viewModal").classList.remove("active");
     }
 
     function openSettingsModal() {
@@ -731,10 +939,15 @@
       document.getElementById("residentModal").classList.add("active");
     }
 
-    // Soft delete to Trash or restore
+    // Soft delete to Trash or restore with Confirmation Prompt
     function toggleArchive(id, activeState) {
       const item = residents.find(r => r.id === id);
       if (item) {
+        if (!activeState) {
+          if (!confirm(`Are you sure you want to move ${item.name} to the trash?`)) {
+            return;
+          }
+        }
         item.active = activeState;
         item.updatedAt = new Date().toISOString();
         saveData();
@@ -791,7 +1004,7 @@
         residents = residents.filter(r => r.active !== false);
         saveData();
         closeDeleteModal();
-        showBanner("Emptied trash locally. Updating Google Sheet...", "info");
+        showBanner("Emptied trash locally. Updating Google Sheet...", "info", 0);
         await syncWithGoogleSheets("syncAll");
       } else if (pendingDeleteId) {
         const item = residents.find(r => r.id === pendingDeleteId);
@@ -799,7 +1012,7 @@
         residents = residents.filter(r => r.id !== pendingDeleteId);
         saveData();
         closeDeleteModal();
-        showBanner(`Permanently deleted ${name}. Updating Google Sheet...`, "info");
+        showBanner(`Permanently deleted ${name}. Updating Google Sheet...`, "info", 0);
         await syncWithGoogleSheets("syncAll");
       }
 
@@ -846,7 +1059,7 @@
       });
 
       saveData();
-      showBanner(`${pujaTitle} rolled over successfully! Syncing snapshot...`, "info");
+      showBanner(`${pujaTitle} rolled over successfully! Syncing snapshot...`, "info", 0);
       syncWithGoogleSheets("archiveAndRollover");
     }
 
@@ -890,16 +1103,22 @@ ${pujaTitle} উপলক্ষে আপনার চাঁদা বাবদ 
         emptyTrashBtn.style.display = "none";
       }
 
-      const filtered = residents.filter(r => {
-        const matchesQuery = (r.name || "").toLowerCase().includes(q) || 
-                             (r.address || "").toLowerCase().includes(q) || 
-                             (r.phone || "").includes(q) ||
-                             (r.currentYearBill || "").toLowerCase().includes(q);
+      let filtered = residents.filter(r => {
+        const matchesQuery = String(r.name || "").toLowerCase().includes(q) || 
+                             String(r.address || "").toLowerCase().includes(q) || 
+                             String(r.phone || "").toLowerCase().includes(q) ||
+                             String(r.currentYearBill || "").toLowerCase().includes(q);
         if (filter === "TRASH") return matchesQuery && r.active === false;
         if (r.active === false) return false;
-        if (filter === "ALL") return matchesQuery;
+        if (filter === "ALL" || filter === "RECENT") return matchesQuery;
         return matchesQuery && r.status === filter;
       });
+
+      // Handle RECENT filter by sorting the filtered output
+      if (filter === "RECENT") {
+        filtered.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+        filtered = filtered.slice(0, 30);
+      }
 
       const active = residents.filter(r => r.active !== false);
       const totalExpected = active.reduce((sum, r) => sum + (Number(r.targetAmount) || 0), 0);
@@ -920,8 +1139,8 @@ ${pujaTitle} উপলক্ষে আপনার চাঁদা বাবদ 
         const badgeClass = r.status === "Paid" ? "badge-paid" : (r.status === "Partial" ? "badge-partial" : "badge-pending");
         return `
           <tr>
-            <td>
-              <div style="font-weight:700; color:#0f172a;">${r.name}</div>
+            <td class="clickable-cell" onclick="viewResident('${r.id}')" title="Click to view details">
+              <div class="resident-name">${r.name}</div>
               <div style="font-size:0.75rem; color:#94a3b8; font-family:monospace;">${r.id}</div>
             </td>
             <td style="color:#475569;">${r.address}</td>
@@ -1004,19 +1223,19 @@ ${pujaTitle} উপলক্ষে আপনার চাঁদা বাবদ 
       reader.readAsText(file);
     }
 
-    async function syncWithGoogleSheets(action = "syncAll") {
+    async function syncWithGoogleSheets(action = "syncAll", showSuccessBanner = true) {
       const url = getApiUrl();
       const pujaTitle = PUJA_CONFIG[activePuja].name;
 
       if (!url) {
-        showBanner(`Google Sheet is not configured for ${pujaTitle} yet. Data is saved locally.`, "info");
+        if (showSuccessBanner) showBanner(`Google Sheet is not configured for ${pujaTitle} yet. Data is saved locally.`, "info");
         return;
       }
 
       const syncBtn = document.getElementById("syncBtn");
       syncBtn.disabled = true;
       syncBtn.innerText = "Pushing...";
-      showBanner(`Uploading ${pujaTitle} records to Google Sheets...`, "info");
+      if (showSuccessBanner) showBanner(`⏳ Uploading ${pujaTitle} records to Google Sheets...`, "warning", 0);
 
       try {
         const res = await fetch(url, {
@@ -1026,28 +1245,28 @@ ${pujaTitle} উপলক্ষে আপনার চাঁদা বাবদ 
         });
         const result = await res.json();
         if (result.success) {
-          showBanner(`${pujaTitle} Google Sheet updated successfully!`, "success");
+          if (showSuccessBanner) showBanner(`✅ ${pujaTitle} Google Sheet updated successfully!`, "success", 4000);
         } else {
-          showBanner("Sync failed: " + result.error, "error");
+          showBanner("❌ Sync failed: " + result.error, "error");
         }
       } catch (err) {
-        showBanner("Error communicating with Sheet: " + err.message, "error");
+        showBanner("❌ Error communicating with Sheet: " + err.message, "error");
       } finally {
         syncBtn.disabled = false;
         syncBtn.innerText = "Push to Sheet";
       }
     }
 
-    async function fetchFromGoogleSheets() {
+    async function fetchFromGoogleSheets(silent = false) {
       const url = getApiUrl();
       const pujaTitle = PUJA_CONFIG[activePuja].name;
 
       if (!url) {
-        showBanner(`No Google Sheet URL set for ${pujaTitle}. Please configure it under "Config".`, "info");
+        if (!silent) showBanner(`No Google Sheet URL set for ${pujaTitle}. Please configure it under "Config".`, "info");
         return;
       }
 
-      showBanner(`Fetching ${pujaTitle} data from Google Sheets...`, "info");
+      if (!silent) showBanner(`⏳ Fetching ${pujaTitle} data from Google Sheets...`, "warning", 0);
 
       try {
         const res = await fetch(url);
@@ -1074,23 +1293,33 @@ ${pujaTitle} উপলক্ষে আপনার চাঁদা বাবদ 
               active: item.Active !== undefined ? (item.Active === true || item.Active === "true" || item.Active === "TRUE") : true
             }));
             saveData();
-            showBanner(`Loaded ${residents.length} records from ${pujaTitle} Google Sheet!`, "success");
+            if (!silent) showBanner(`✅ Loaded ${residents.length} records from ${pujaTitle} Google Sheet!`, "success", 4000);
           } else {
             residents = [];
             saveData();
-            showBanner(`${pujaTitle} Google Sheet is currently empty.`, "info");
+            if (!silent) showBanner(`ℹ️ ${pujaTitle} Google Sheet is currently empty.`, "info");
           }
         } else {
-          showBanner("Failed to retrieve sheet data: " + (result.error || "Unknown error"), "error");
+          showBanner("❌ Failed to retrieve sheet data: " + (result.error || "Unknown error"), "error");
         }
       } catch (err) {
-        showBanner("Fetch error: " + err.message, "error");
+        showBanner("❌ Fetch error: " + err.message, "error");
       }
     }
 
     // Initialize UI
     switchPuja(activePuja);
     initStatsDropdown();
+
+    // Auto-fetch data on page load if URL is configured
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const url = getApiUrl();
+        if (url && url !== "") {
+          fetchFromGoogleSheets(true); // Silent fetch, no popups unless error
+        }
+      }, 300); // 300ms delay ensures UI is responsive immediately
+    });
   </script>
 </body>
 </html>
