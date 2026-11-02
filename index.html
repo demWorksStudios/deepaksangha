@@ -38,18 +38,99 @@
     }
 
     .header-btns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .container { max-width: 1240px; margin: 24px auto; padding: 0 16px; }
+    .container { max-width: 1240px; margin: 20px auto; padding: 0 16px; }
+
+    /* Puja Switcher Tabs */
+    .puja-switcher-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      background: #e2e8f0;
+      padding: 6px;
+      border-radius: 12px;
+      width: fit-content;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .puja-tab-btn {
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: #475569;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .puja-tab-btn:hover {
+      color: #0f172a;
+    }
+    .puja-tab-btn.active {
+      background: #ffffff;
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+    .puja-tab-btn.active.durga {
+      color: var(--accent);
+    }
+    .puja-badge-count {
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      color: #64748b;
+    }
+    .puja-tab-btn.active .puja-badge-count {
+      background: #ecfdf5;
+      color: var(--primary);
+    }
+    .puja-tab-btn.active.durga .puja-badge-count {
+      background: #fef2f2;
+      color: var(--accent);
+    }
 
     .festival-badge-strip {
       background: linear-gradient(90deg, #fff1f2 0%, #fef3c7 50%, #ecfdf5 100%);
       border: 1px solid #fed7aa; border-left: 4px solid var(--accent);
-      padding: 10px 16px; border-radius: 8px; margin-bottom: 20px;
+      padding: 12px 16px; border-radius: 8px; margin-bottom: 12px;
       display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+      cursor: pointer; user-select: none; transition: background 0.2s, box-shadow 0.2s;
     }
-    .festival-title { font-size: 0.9rem; font-weight: 700; color: var(--accent); }
-    .sub-tag { font-size: 0.8rem; color: #78350f; font-weight: 600; }
+    .festival-badge-strip:hover {
+      box-shadow: 0 2px 8px rgba(185, 28, 28, 0.12);
+      filter: brightness(0.99);
+    }
+    .festival-title-wrap {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .festival-title { font-size: 0.95rem; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+    .sub-tag { font-size: 0.8rem; color: #78350f; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .accordion-indicator {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 24px; height: 24px; border-radius: 50%; background: rgba(185, 28, 28, 0.1);
+      color: var(--accent); font-size: 0.75rem; transition: transform 0.25s ease;
+    }
+    .accordion-indicator.open {
+      transform: rotate(180deg);
+    }
 
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 22px; }
+    .stats-dropdown-container {
+      overflow: hidden;
+      transition: max-height 0.35s ease, opacity 0.25s ease, margin 0.25s ease;
+      max-height: 0;
+      opacity: 0;
+      margin-bottom: 0;
+    }
+    .stats-dropdown-container.open {
+      max-height: 500px;
+      opacity: 1;
+      margin-bottom: 22px;
+    }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
     .stat-card {
       background: var(--card-bg); padding: 16px 18px; border-radius: 10px; border: 1px solid var(--border);
       box-shadow: 0 1px 4px rgba(0,0,0,0.04); position: relative; overflow: hidden;
@@ -158,27 +239,48 @@
   <div class="container">
     <div id="statusBanner"></div>
 
-    <div class="festival-badge-strip">
-      <div class="festival-title">শ্রী শ্রী শ্যামা পূজা</div>
-      <div class="sub-tag">Automated Multi-Year Rolling Ledger</div>
+    <!-- Top Puja Switcher -->
+    <div class="puja-switcher-bar">
+      <button class="puja-tab-btn active" id="tabShyama" onclick="switchPuja('shyama')">
+        <span>🪔 শ্রী শ্রী শ্যামা পূজা</span>
+        <span class="puja-badge-count" id="countShyamaBadge">0</span>
+      </button>
+      <button class="puja-tab-btn" id="tabDurga" onclick="switchPuja('durga')">
+        <span>🌺 শ্রী শ্রী দুর্গা পূজা</span>
+        <span class="puja-badge-count" id="countDurgaBadge">0</span>
+      </button>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card card-target">
-        <div class="label">Total Expected Target</div>
-        <div id="statTarget" class="value val-target">₹0</div>
+    <!-- Clickable Header that drops down the Total Summary Section -->
+    <div class="festival-badge-strip" onclick="toggleStatsDropdown()" title="Click to show or hide the totals summary">
+      <div class="festival-title-wrap">
+        <span class="accordion-indicator" id="accordionArrow">▼</span>
+        <div class="festival-title" id="festivalDisplayTitle">শ্রী শ্রী শ্যামা পূজা</div>
       </div>
-      <div class="stat-card">
-        <div class="label">Total Collected (Active)</div>
-        <div id="statPaid" class="value val-paid">₹0</div>
+      <div class="sub-tag">
+        <span id="festivalDisplaySubtitle">Automated Multi-Year Rolling Ledger (Click to view totals)</span>
       </div>
-      <div class="stat-card card-pending">
-        <div class="label">Pending Balance</div>
-        <div id="statPending" class="value val-pending">₹0</div>
-      </div>
-      <div class="stat-card card-count">
-        <div class="label">Households Count</div>
-        <div id="statCount" class="value val-count">0</div>
+    </div>
+
+    <!-- Dropdown Container for Totals / Statistics -->
+    <div class="stats-dropdown-container" id="statsDropdown">
+      <div class="stats-grid">
+        <div class="stat-card card-target">
+          <div class="label">Total Expected Target</div>
+          <div id="statTarget" class="value val-target">₹0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Total Collected (Active)</div>
+          <div id="statPaid" class="value val-paid">₹0</div>
+        </div>
+        <div class="stat-card card-pending">
+          <div class="label">Pending Balance</div>
+          <div id="statPending" class="value val-pending">₹0</div>
+        </div>
+        <div class="stat-card card-count">
+          <div class="label">Households Count</div>
+          <div id="statCount" class="value val-count">0</div>
+        </div>
       </div>
     </div>
 
@@ -190,7 +292,7 @@
           <option value="Paid">Paid</option>
           <option value="Pending">Pending</option>
           <option value="Partial">Partial</option>
-          <option value="TRASH">Archived (Trash)</option>
+          <option value="TRASH">Archived</option>
         </select>
       </div>
       <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -331,7 +433,7 @@
           Are you sure you want to permanently delete this record?
         </p>
         <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 10px; font-size: 0.8rem; color: #991b1b; line-height: 1.4;">
-          <strong>Warning:</strong> This will delete the record completely from local storage AND automatically push the deletion to Google Sheets right away. This action cannot be undone.
+          <strong>Warning:</strong> This will delete the record completely from local storage AND automatically push the deletion to Google Sheets right away if configured. This action cannot be undone.
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">Cancel</button>
@@ -341,18 +443,29 @@
     </div>
   </div>
 
-  <!-- Settings Modal -->
+  <!-- Settings Modal (Separate URLs for Shyama Puja and Durga Puja) -->
   <div id="settingsModal" class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header">
-        <h3>Apps Script Settings</h3>
+        <h3>Google Apps Script Settings</h3>
         <button class="modal-close" onclick="closeSettingsModal()">&times;</button>
       </div>
       <div class="modal-body">
-        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 12px;">Active Web App Endpoint:</p>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 14px;">Set individual Apps Script Web App endpoints for each festival:</p>
+        
         <div class="form-group">
-          <input type="text" id="scriptUrlInput">
+          <label>🪔 শ্যামা পূজা Web App URL</label>
+          <input type="text" id="scriptUrlShyamaInput" placeholder="https://script.google.com/macros/s/.../exec">
         </div>
+        
+        <div class="form-group">
+          <label>🌺 দুর্গা পূজা Web App URL</label>
+          <input type="text" id="scriptUrlDurgaInput" placeholder="Leave blank if sheet not created yet">
+          <small style="font-size: 0.72rem; color: #94a3b8; display: block; margin-top: 3px;">
+            Durga Puja data saves locally. Once you create and deploy the Durga Puja sheet, paste its URL here.
+          </small>
+        </div>
+        
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" onclick="closeSettingsModal()">Close</button>
           <button type="button" class="btn btn-club" onclick="saveSettings()">Save Configuration</button>
@@ -362,12 +475,44 @@
   </div>
 
   <script>
-    const DEFAULT_API_URL= "https://script.google.com/macros/s/AKfycbxPEwJkJazKWiRO6Kpmv840iA6x0tjvcn8YvskcJpB_wvZ8EpDOzQEQDKvJ5Nq1qmMfKg/exec";
-    const STORAGE_KEY = "deepak_sangha_rolling_ledger";
-    const API_URL_KEY = "chanda_apps_script_url";
+    // Endpoints & Storage Keys
+    const DEFAULT_SHYAMA_API_URL = "https://script.google.com/macros/s/AKfycbxPEwJkJazKWiRO6Kpmv840iA6x0tjvcn8YvskcJpB_wvZ8EpDOzQEQDKvJ5Nq1qmMfKg/exec";
+    const DEFAULT_DURGA_API_URL = "";
 
-    function getApiUrl() {
-      return localStorage.getItem(API_URL_KEY) || DEFAULT_API_URL;
+    const PUJA_CONFIG = {
+      shyama: {
+        id: "shyama",
+        name: "শ্রী শ্রী শ্যামা পূজা",
+        tag: "Shyama",
+        storageKey: "deepak_sangha_rolling_ledger_shyama",
+        apiKey: "chanda_apps_script_url_shyama",
+        defaultUrl: DEFAULT_SHYAMA_API_URL,
+        btnClass: "active"
+      },
+      durga: {
+        id: "durga",
+        name: "শ্রী শ্রী দুর্গা পূজা",
+        tag: "Durga",
+        storageKey: "deepak_sangha_rolling_ledger_durga",
+        apiKey: "chanda_apps_script_url_durga",
+        defaultUrl: DEFAULT_DURGA_API_URL,
+        btnClass: "active durga"
+      }
+    };
+
+    // Active State
+    let activePuja = localStorage.getItem("deepak_sangha_active_puja") || "shyama";
+    if (!PUJA_CONFIG[activePuja]) activePuja = "shyama";
+
+    const DROPDOWN_STATE_KEY = "deepak_sangha_stats_open";
+
+    function getApiUrl(pujaId = activePuja) {
+      const cfg = PUJA_CONFIG[pujaId];
+      // For backward compatibility, check old key if shyama
+      if (pujaId === "shyama") {
+        return localStorage.getItem(cfg.apiKey) || localStorage.getItem("chanda_apps_script_url") || cfg.defaultUrl;
+      }
+      return localStorage.getItem(cfg.apiKey) || cfg.defaultUrl;
     }
 
     const currentYear = new Date().getFullYear();
@@ -382,11 +527,74 @@
     document.getElementById("lbl1YrAmount").innerText = `${lastYear} Amount (₹)`;
     document.getElementById("lblCurrAmount").innerText = `${currentYear} Collected (₹)`;
 
-    let residents = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    // Load data for active puja
+    let residents = [];
+
+    function loadPujaData(pujaId) {
+      const cfg = PUJA_CONFIG[pujaId];
+      // Support migration from previous storage key for shyama
+      let data = localStorage.getItem(cfg.storageKey);
+      if (!data && pujaId === "shyama") {
+        data = localStorage.getItem("deepak_sangha_rolling_ledger");
+      }
+      try {
+        return JSON.parse(data || "[]");
+      } catch (e) {
+        return [];
+      }
+    }
+
+    residents = loadPujaData(activePuja);
 
     // Variable for managing deletion targets
     let pendingDeleteId = null;
     let isDeletingAllTrash = false;
+
+    // Switch between Shyama and Durga Puja
+    function switchPuja(pujaId) {
+      if (!PUJA_CONFIG[pujaId]) return;
+      activePuja = pujaId;
+      localStorage.setItem("deepak_sangha_active_puja", pujaId);
+
+      // Update Tab Buttons UI
+      document.getElementById("tabShyama").className = "puja-tab-btn" + (pujaId === "shyama" ? " active" : "");
+      document.getElementById("tabDurga").className = "puja-tab-btn" + (pujaId === "durga" ? " active durga" : "");
+
+      // Update Banner Titles
+      document.getElementById("festivalDisplayTitle").innerText = PUJA_CONFIG[pujaId].name;
+      document.getElementById("festivalDisplaySubtitle").innerText = `Automated Multi-Year Rolling Ledger • ${PUJA_CONFIG[pujaId].name}`;
+
+      // Load specific dataset
+      residents = loadPujaData(pujaId);
+      updateTabBadges();
+      renderTable();
+      showBanner(`Switched to ${PUJA_CONFIG[pujaId].name} portal`, "info");
+    }
+
+    function updateTabBadges() {
+      const shyamaData = loadPujaData("shyama");
+      const durgaData = loadPujaData("durga");
+      document.getElementById("countShyamaBadge").innerText = shyamaData.filter(r => r.active !== false).length;
+      document.getElementById("countDurgaBadge").innerText = durgaData.filter(r => r.active !== false).length;
+    }
+
+    // Toggle Dropdown for Stats / Totals
+    function toggleStatsDropdown() {
+      const container = document.getElementById("statsDropdown");
+      const arrow = document.getElementById("accordionArrow");
+      const isOpen = container.classList.toggle("open");
+      arrow.classList.toggle("open", isOpen);
+      localStorage.setItem(DROPDOWN_STATE_KEY, isOpen ? "1" : "0");
+    }
+
+    // Restore previous dropdown state (defaults to closed/collapsed)
+    function initStatsDropdown() {
+      const savedState = localStorage.getItem(DROPDOWN_STATE_KEY);
+      if (savedState === "1") {
+        document.getElementById("statsDropdown").classList.add("open");
+        document.getElementById("accordionArrow").classList.add("open");
+      }
+    }
 
     function showBanner(message, type = "info") {
       const banner = document.getElementById("statusBanner");
@@ -397,7 +605,13 @@
     }
 
     function saveData() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(residents));
+      const cfg = PUJA_CONFIG[activePuja];
+      localStorage.setItem(cfg.storageKey, JSON.stringify(residents));
+      // For backward compatibility keep shyama in default key too
+      if (activePuja === "shyama") {
+        localStorage.setItem("deepak_sangha_rolling_ledger", JSON.stringify(residents));
+      }
+      updateTabBadges();
       renderTable();
     }
 
@@ -409,7 +623,7 @@
     }
 
     function openAddResidentModal() {
-      document.getElementById("modalTitle").innerText = "Add Resident Record";
+      document.getElementById("modalTitle").innerText = `Add Record (${PUJA_CONFIG[activePuja].name})`;
       document.getElementById("formId").value = "";
       document.getElementById("formName").value = "";
       document.getElementById("formAddress").value = "";
@@ -432,7 +646,8 @@
     }
 
     function openSettingsModal() {
-      document.getElementById("scriptUrlInput").value = getApiUrl();
+      document.getElementById("scriptUrlShyamaInput").value = getApiUrl("shyama");
+      document.getElementById("scriptUrlDurgaInput").value = getApiUrl("durga");
       document.getElementById("settingsModal").classList.add("active");
     }
 
@@ -441,15 +656,20 @@
     }
 
     function saveSettings() {
-      const url = document.getElementById("scriptUrlInput").value.trim();
-      localStorage.setItem(API_URL_KEY, url || DEFAULT_API_URL);
+      const shyamaUrl = document.getElementById("scriptUrlShyamaInput").value.trim();
+      const durgaUrl = document.getElementById("scriptUrlDurgaInput").value.trim();
+      
+      localStorage.setItem(PUJA_CONFIG.shyama.apiKey, shyamaUrl || DEFAULT_SHYAMA_API_URL);
+      localStorage.setItem(PUJA_CONFIG.durga.apiKey, durgaUrl);
+      
       closeSettingsModal();
-      showBanner("Script URL configuration saved!", "success");
+      showBanner("Google Apps Script settings updated!", "success");
     }
 
     function handleFormSubmit(e) {
       e.preventDefault();
-      const id = document.getElementById("formId").value || ("TDS-" + Math.floor(100 + Math.random() * 900));
+      const prefix = activePuja === "durga" ? "TDS-D-" : "TDS-";
+      const id = document.getElementById("formId").value || (prefix + Math.floor(100 + Math.random() * 900));
       const target = Number(document.getElementById("formTarget").value) || 0;
       const currPaid = Number(document.getElementById("formCurrAmount").value) || 0;
       
@@ -485,14 +705,14 @@
 
       saveData();
       closeResidentModal();
-      showBanner(`Record updated for ${record.name}`, "success");
+      showBanner(`Record updated for ${record.name} (${PUJA_CONFIG[activePuja].name})`, "success");
     }
 
     function editResident(id) {
       const item = residents.find(r => r.id === id);
       if (!item) return;
 
-      document.getElementById("modalTitle").innerText = "Edit Resident Record";
+      document.getElementById("modalTitle").innerText = `Edit Record (${PUJA_CONFIG[activePuja].name})`;
       document.getElementById("formId").value = item.id;
       document.getElementById("formName").value = item.name;
       document.getElementById("formAddress").value = item.address;
@@ -532,8 +752,8 @@
 
       document.getElementById("deleteModalTitle").innerText = "⚠️ Delete from Trash & Sheet";
       document.getElementById("deleteModalMessage").innerHTML = 
-        `Are you sure you want to permanently delete <strong>${item.name}</strong> (ID: <code>${item.id}</code>)?<br><br>` +
-        `This record will be permanently deleted from this app and removed from your Google Sheet.`;
+        `Are you sure you want to permanently delete <strong>${item.name}</strong> (ID: <code>${item.id}</code>) from <strong>${PUJA_CONFIG[activePuja].name}</strong>?<br><br>` +
+        `This record will be permanently deleted from this app and removed from Google Sheets if configured.`;
       
       document.getElementById("deleteModal").classList.add("active");
     }
@@ -550,8 +770,8 @@
 
       document.getElementById("deleteModalTitle").innerText = "⚠️ Empty Entire Trash";
       document.getElementById("deleteModalMessage").innerHTML = 
-        `Are you sure you want to permanently delete all <strong>${trashCount}</strong> archived record(s) in the trash?<br><br>` +
-        `These records will be permanently removed from this app and wiped from your Google Sheet.`;
+        `Are you sure you want to permanently delete all <strong>${trashCount}</strong> archived record(s) in the trash for <strong>${PUJA_CONFIG[activePuja].name}</strong>?<br><br>` +
+        `These records will be permanently removed from this app and wiped from Google Sheets if connected.`;
 
       document.getElementById("deleteModal").classList.add("active");
     }
@@ -589,12 +809,13 @@
 
     // Move Current Year to Previous Year & Previous Year to 2 Years Ago
     function rollOverToNextYear() {
-      const confirmMsg = "Are you sure you want to end this collection campaign and roll over?\n\n" +
+      const pujaTitle = PUJA_CONFIG[activePuja].name;
+      const confirmMsg = `Are you sure you want to end this collection campaign and roll over for ${pujaTitle}?\n\n` +
         "• Previous Year data moves to 2 Years Ago (Amount & Bill)\n" +
         "• Current Year data moves to Previous Year (Amount & Bill)\n" +
         "• Active Collection resets to 0 (Pending) with target = last year\n" +
         "• A full backup JSON file will be downloaded\n" +
-        "• A permanent Archive snapshot tab will be created in your Google Sheet";
+        "• A permanent Archive snapshot tab will be created in your Google Sheet (if configured)";
 
       if (!confirm(confirmMsg)) return;
 
@@ -625,7 +846,7 @@
       });
 
       saveData();
-      showBanner("Cycle rolled over successfully! Syncing snapshot to Google Sheets...", "info");
+      showBanner(`${pujaTitle} rolled over successfully! Syncing snapshot...`, "info");
       syncWithGoogleSheets("archiveAndRollover");
     }
 
@@ -637,13 +858,14 @@
       }
       const num = item.phone.replace(/\D/g, "");
       const fullNum = num.length === 10 ? "91" + num : num;
+      const pujaTitle = PUJA_CONFIG[activePuja].name;
 
       const message = 
 `*টালিগঞ্জ দীপক সংঘ (Estd. 1942)*
 *TOLLYGUNGE DEEPAK SANGHA*
 ----------------------------------------
 নমস্কার ${item.name},
-শ্রী শ্রী শ্যামা পূজা উপলক্ষে আপনার চাঁদা বাবদ অর্থ সফলভাবে জমা নেওয়া হয়েছে।
+${pujaTitle} উপলক্ষে আপনার চাঁদা বাবদ অর্থ সফলভাবে জমা নেওয়া হয়েছে।
 
 • রশিদ নং (Bill / Receipt ID): *${item.currentYearBill || item.id}*
 • প্রাপ্ত অর্থ (Amount Paid): *₹${item.currentYearAmount}*
@@ -690,7 +912,7 @@
 
       const tbody = document.getElementById("residentTbody");
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:34px; color:#94a3b8;">${filter === "TRASH" ? "Trash is currently empty." : "No matching records found."}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:34px; color:#94a3b8;">${filter === "TRASH" ? "Trash is currently empty for " + PUJA_CONFIG[activePuja].name + "." : "No records found for " + PUJA_CONFIG[activePuja].name + "."}</td></tr>`;
         return;
       }
 
@@ -736,6 +958,7 @@
     }
 
     function exportCSV() {
+      const pujaTag = PUJA_CONFIG[activePuja].tag;
       const headers = ["ID", "Name", "Address", "Phone", "SecondPreviousYear_Amount", "SecondPreviousYear_Bill", "PreviousYear_Amount", "PreviousYear_Bill", "Target_Amount", "CurrentYear_Amount", "CurrentYear_Bill", "Status", "PaymentMode", "CollectedBy", "Active"];
       const rows = residents.map(r => [
         `"${r.id}"`, `"${r.name}"`, `"${r.address}"`, `"${r.phone || ""}"`,
@@ -747,15 +970,16 @@
       const csv = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
       const a = document.createElement("a");
       a.href = encodeURI(csv);
-      a.download = `Deepak_Sangha_Chanda_${new Date().toISOString().slice(0,10)}.csv`;
+      a.download = `Deepak_Sangha_${pujaTag}_Chanda_${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
     }
 
     function exportJSON() {
+      const pujaTag = PUJA_CONFIG[activePuja].tag;
       const blob = new Blob([JSON.stringify(residents, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `deepak_sangha_backup_${new Date().toISOString().slice(0,10)}.json`;
+      a.download = `deepak_sangha_${pujaTag}_backup_${new Date().toISOString().slice(0,10)}.json`;
       a.click();
     }
 
@@ -769,7 +993,7 @@
           if (Array.isArray(data)) {
             residents = data;
             saveData();
-            showBanner(`Imported ${data.length} records successfully!`, "success");
+            showBanner(`Imported ${data.length} records into ${PUJA_CONFIG[activePuja].name}!`, "success");
           } else {
             alert("Uploaded file does not contain a valid JSON record list.");
           }
@@ -782,10 +1006,17 @@
 
     async function syncWithGoogleSheets(action = "syncAll") {
       const url = getApiUrl();
+      const pujaTitle = PUJA_CONFIG[activePuja].name;
+
+      if (!url) {
+        showBanner(`Google Sheet is not configured for ${pujaTitle} yet. Data is saved locally.`, "info");
+        return;
+      }
+
       const syncBtn = document.getElementById("syncBtn");
       syncBtn.disabled = true;
       syncBtn.innerText = "Pushing...";
-      showBanner("Uploading records to Google Sheets...", "info");
+      showBanner(`Uploading ${pujaTitle} records to Google Sheets...`, "info");
 
       try {
         const res = await fetch(url, {
@@ -795,7 +1026,7 @@
         });
         const result = await res.json();
         if (result.success) {
-          showBanner("Google Sheet updated successfully!", "success");
+          showBanner(`${pujaTitle} Google Sheet updated successfully!`, "success");
         } else {
           showBanner("Sync failed: " + result.error, "error");
         }
@@ -809,15 +1040,23 @@
 
     async function fetchFromGoogleSheets() {
       const url = getApiUrl();
-      showBanner("Fetching latest data from Google Sheets...", "info");
+      const pujaTitle = PUJA_CONFIG[activePuja].name;
+
+      if (!url) {
+        showBanner(`No Google Sheet URL set for ${pujaTitle}. Please configure it under "Config".`, "info");
+        return;
+      }
+
+      showBanner(`Fetching ${pujaTitle} data from Google Sheets...`, "info");
 
       try {
         const res = await fetch(url);
         const result = await res.json();
         if (result.success && Array.isArray(result.data)) {
           if (result.data.length > 0) {
+            const prefix = activePuja === "durga" ? "TDS-D-" : "TDS-";
             residents = result.data.map(item => ({
-              id: item.ID || item.id || ("TDS-" + Math.floor(100 + Math.random() * 900)),
+              id: item.ID || item.id || (prefix + Math.floor(100 + Math.random() * 900)),
               name: item.Name || item.name || "",
               address: item.Address || item.address || "",
               phone: String(item.Phone || item.phone || ""),
@@ -835,11 +1074,11 @@
               active: item.Active !== undefined ? (item.Active === true || item.Active === "true" || item.Active === "TRUE") : true
             }));
             saveData();
-            showBanner(`Loaded ${residents.length} records from Google Sheet!`, "success");
+            showBanner(`Loaded ${residents.length} records from ${pujaTitle} Google Sheet!`, "success");
           } else {
             residents = [];
             saveData();
-            showBanner("Google Sheet is currently empty.", "info");
+            showBanner(`${pujaTitle} Google Sheet is currently empty.`, "info");
           }
         } else {
           showBanner("Failed to retrieve sheet data: " + (result.error || "Unknown error"), "error");
@@ -849,7 +1088,9 @@
       }
     }
 
-    renderTable();
+    // Initialize UI
+    switchPuja(activePuja);
+    initStatsDropdown();
   </script>
 </body>
 </html>
